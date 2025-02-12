@@ -13,7 +13,7 @@ const HomeScreen = () => {
 
     </View>
   );
-};      
+};           
 
 const styles = StyleSheet.create({
   container: {
