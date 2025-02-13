@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-
+import { useNavigation } from "@react-navigation/native";
 const StudentLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigation = useNavigation(); 
+
 
   const handleLogin = () => {
     console.log("Logging in with:", { username, password });
+    navigation.navigate("FeedBackScreen")
   };
+
 
   return (
     <View style={styles.container}>

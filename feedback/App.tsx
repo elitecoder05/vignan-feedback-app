@@ -4,12 +4,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 
 
-import FeedbackScreen from './screens/LoginScreen';
-import AboutScreen from './screens/LoginScreen1';
+import FeedbackScreen from './screens/FeedBackScreen';
 import HeaderCombined from './screens/components/HeaderCombined';
 import SignInDialog from './screens/components/StudentLogin';
 
-import Login from './screens/LoginScreen1';
+import Login from './screens/LoginScreen';
 
 
 
@@ -20,17 +19,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator >
-      <Stack.Screen name="LoginScreen" component={AboutScreen} />
+      <Stack.Screen name="LoginScreen" component={Login} />
 
-        <Stack.Screen name="FeedBackScreen" component={FeedbackScreen} />
-
-
+      <Stack.Screen name="FeedBackScreen" component={FeedbackScreen} />
 
 
-        {/* //components */}
-        <Stack.Screen name="HeaderCombined" component={HeaderCombined} />
-        <Stack.Screen name="SignInDialog" component={SignInDialog} />
-        
+
+
+
 
 
 
