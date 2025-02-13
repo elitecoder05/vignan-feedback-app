@@ -1,23 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import TabMenu from "./components/TabMenu";
 import { useNavigation } from "@react-navigation/native";
+
 const FeedbackScreen = () => {
   const navigation = useNavigation();
-  const [program, setProgram] = useState("");
   const [branch, setBranch] = useState("");
   const [year, setYear] = useState("");
   const [semester, setSemester] = useState("");
-
-  const dropdownData = [
-    { key: "1", value: "Option 1" },
-    { key: "2", value: "Option 2" },
-    { key: "3", value: "Option 3" },
-  ];
-
-
-
+  const [loading, setLoading] = useState(false); // Loading state for API call
 
   const branchData = [
     { key: "CSE", value: "CSE" },
@@ -25,41 +17,60 @@ const FeedbackScreen = () => {
     { key: "EEE", value: "EEE" },
   ];
 
-
-
-
-
-
-
   const yearData = [
     { key: "1", value: "1" },
     { key: "2", value: "2" },
     { key: "3", value: "3" },
     { key: "4", value: "4" },
-
   ];
-
-
-
-
 
   const semesterData = [
     { key: "1", value: "1" },
     { key: "2", value: "2" },
-
   ];
 
+  const handleSubmit = async () => {
+    if (!branch || !year || !semester) {
+      Alert.alert("Error", "Please select all fields.");
+      return;
+    }
 
+    setLoading(true);
 
+    const apiUrl = `https://feedbackk.onrender.com/api/subjects?branch=${branch}&semester=${semester}&btechYear=${year}`;
 
- 
+    try {
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+          "Content-Type": "application/json",
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error("Failed to fetch subjects.");
+      }
 
-  const handleSubmit = () => {
-    console.log("Selected Branch:", branch);
-    console.log("Selected Year:", year);
-    console.log("Selected Semester:", semester);
-    navigation.navigate("MainFeedback");
+      const data = await response.json();
+
+      // Extract subject names and IDs
+      const subjects = data.map((subject) => ({
+        id: subject._id,
+        name: subject.name,
+      }));
+
+      console.log("Subjects:", subjects);
+
+      // Navigate to MainFeedback and pass subject data
+      navigation.navigate("MainFeedback", { subjects });
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      Alert.alert("Error", "Failed to fetch subjects. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,7 +88,6 @@ const FeedbackScreen = () => {
       <View style={styles.dottedLine}></View>
 
       <View style={styles.formContainer}>
-       
         <Text style={styles.label}>Select Branch :</Text>
         <SelectList setSelected={setBranch} data={branchData} placeholder="Select Branch" />
 
@@ -87,18 +97,9 @@ const FeedbackScreen = () => {
         <Text style={styles.label}>Select Semester :</Text>
         <SelectList setSelected={setSemester} data={semesterData} placeholder="Select Semester" />
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>SUBMIT</Text>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
+          {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitButtonText}>SUBMIT</Text>}
         </TouchableOpacity>
-
-
-
-
-
-
-
-
-
       </View>
 
       <TabMenu />
@@ -152,6 +153,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     height: 40,
     width: 100,
+    justifyContent: "center",
+    alignItems: "center",
   },
   submitButtonText: {
     color: "#FFF",

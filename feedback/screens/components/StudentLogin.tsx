@@ -1,17 +1,63 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
+
 const StudentLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigation = useNavigation(); 
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
-
-  const handleLogin = () => {
-    console.log("Logging in with:", { username, password });
-    navigation.navigate("FeedBackScreen")
+  const saveToSecureStorage = async (key, value) => {
+    try {
+      await SecureStore.setItemAsync(key, value);
+    } catch (error) {
+      console.error(`Error saving ${key} to Secure Storage:`, error);
+    }
   };
 
+  const handleLogin = async () => {
+    if (!username || !password) {
+      Alert.alert("Error", "Please enter both username and password");
+      return;
+    }
+
+    setLoading(true);
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "/",
+        "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    };
+
+    try {
+      const response = await fetch("https://feedbackk.onrender.com/api/auth/login", requestOptions);
+      const result = await response.json();
+
+      if (result.success) {
+        console.log("Login successful!", result);
+
+        // Store `name` and `username` in Secure Storage
+        await saveToSecureStorage("studentName", result.user.name);
+        await saveToSecureStorage("studentUsername", result.user.username);
+
+        // Navigate to FeedBackScreen
+        navigation.navigate("FeedBackScreen");
+      } else {
+        Alert.alert("Login Failed", "Invalid username or password");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -22,23 +68,22 @@ const StudentLogin = () => {
             <Text style={styles.label}>User Name :</Text>
             <TextInput
               style={styles.input}
-              placeholder=""
               value={username}
               onChangeText={setUsername}
+              autoCapitalize="none"
             />
           </View>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password :</Text>
             <TextInput
               style={styles.input}
-              placeholder=""
               secureTextEntry
               value={password}
               onChangeText={setPassword}
             />
           </View>
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>LOGIN</Text>
+          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+            <Text style={styles.buttonText}>{loading ? "Logging in..." : "LOGIN"}</Text>
           </TouchableOpacity>
         </View>
       </View>

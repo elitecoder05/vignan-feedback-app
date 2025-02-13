@@ -1,31 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Dimensions, ScrollView } from 'react-native';
-import HeaderCombined from './components/HeaderCombined';
-
-const subjectsData = [
-  { id: '1', name: 'AI' },
-  { id: '2', name: 'CNS' },
-  { id: '3', name: 'MEFA' },
-  { id: '4', name: 'UNIX' },
-  { id: '5', name: 'ML' },
-  { id: '6', name: 'OAD LAB' },
-  { id: '7', name: 'ML - LAB' },
-  { id: '8', name: 'GIT & GITHUB LAB' },
-  { id: '9', name: 'CRT' },
-];
+import React, { useState } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable, Dimensions, ScrollView } from "react-native";
+import { useRoute } from "@react-navigation/native";
+import HeaderCombined from "./components/HeaderCombined";
 
 const MainFeedback = () => {
+  const route = useRoute();
+  const { subjects } = route.params || { subjects: [] }; // Get subjects from navigation params
+
   const [userData] = useState({
-    username: '22L31A0525',
-    name: 'B Srinivasa Ashrith test',
-    branch: 'CSE',
-    semester: 'VI Semester',
+    username: "22L31A0525",
+    name: "B Srinivasa Ashrith test",
+    branch: "CSE",
+    semester: "VI Semester",
   });
 
   const [ratings, setRatings] = useState({});
 
   const handleRatingChange = (subjectId, value) => {
-    setRatings(prevRatings => ({
+    setRatings((prevRatings) => ({
       ...prevRatings,
       [subjectId]: value,
     }));
@@ -35,7 +27,7 @@ const MainFeedback = () => {
     <View style={[styles.row, index % 2 !== 0 && styles.alternateRow]}>
       <Text style={styles.subject}>{item.name}</Text>
       <Text style={styles.colon}>:</Text>
-      {[4, 3, 2, 1].map(value => (
+      {[4, 3, 2, 1].map((value) => (
         <Pressable key={value} onPress={() => handleRatingChange(item.id, value)} style={styles.radioButtonContainer}>
           <View style={[styles.radioButton, ratings[item.id] === value && styles.radioSelected]} />
         </Pressable>
@@ -85,11 +77,11 @@ const MainFeedback = () => {
           <Text style={styles.headerText}>1</Text>
         </View>
 
-        <FlatList
-          data={subjectsData}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
-        />
+        {subjects.length > 0 ? (
+          <FlatList data={subjects} keyExtractor={(item) => item.id} renderItem={renderItem} />
+        ) : (
+          <Text style={styles.noSubjectsText}>No subjects available. Please try again.</Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -100,24 +92,24 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   infoContainer: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     padding: 15,
     borderRadius: 10,
     elevation: 3,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 5,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   alternateRow: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: "#f2f2f2",
   },
   label: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     width: 130, // Ensures alignment
   },
@@ -126,38 +118,38 @@ const styles = StyleSheet.create({
   },
   ratingContainer: {
     marginTop: 15,
-    backgroundColor: '#e6f2f7',
+    backgroundColor: "#e6f2f7",
     padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: Dimensions.get('window').width - 40,
-    alignSelf: 'center',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: Dimensions.get("window").width - 40,
+    alignSelf: "center",
     borderRadius: 5,
   },
   ratingText: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   subjectsContainer: {
     marginTop: 20,
   },
   headerRow: {
-    flexDirection: 'row',
-    backgroundColor: '#777',
+    flexDirection: "row",
+    backgroundColor: "#777",
     padding: 10,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   headerText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subject: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     flex: 2,
   },
   colon: {
@@ -166,21 +158,27 @@ const styles = StyleSheet.create({
   },
   radioButtonContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   radioButton: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#555',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#555",
+    alignItems: "center",
+    justifyContent: "center",
   },
   radioSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: "#007AFF",
+    borderColor: "#007AFF",
+  },
+  noSubjectsText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "red",
+    marginTop: 20,
   },
 });
 
