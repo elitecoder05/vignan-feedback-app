@@ -28,15 +28,21 @@ const StudentLogin = () => {
     const requestOptions = {
       method: "POST",
       headers: {
-        Accept: "/",
+        Accept: "*/*",
         "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0YiIsImlhdCI6MTczOTQ1MTkwNSwiZXhwIjoxNzM5NDUyODA1fQ.1Kdha87HvPrbGIeGA7nn_x-r7E6HC26y-IHpzm897tc",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, password }),
+      redirect: "follow",
     };
 
     try {
-      const response = await fetch("https://feedbackk.onrender.com/api/auth/login", requestOptions);
+      const response = await fetch(
+        "https://academic-rating.onrender.com/api/auth/login",
+        requestOptions
+      );
       const result = await response.json();
 
       if (result.success) {
@@ -82,8 +88,14 @@ const StudentLogin = () => {
               onChangeText={setPassword}
             />
           </View>
-          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-            <Text style={styles.buttonText}>{loading ? "Logging in..." : "LOGIN"}</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Logging in..." : "LOGIN"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Dimensions, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 import HeaderCombined from "./components/HeaderCombined";
@@ -43,8 +53,56 @@ const MainFeedback = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    console.log("Submitted Ratings:", ratings);
+  const handleSubmit = async () => {
+    // Convert the ratings object to an array of rating objects
+    const ratingsArray = Object.keys(ratings).map((subjectId) => ({
+      subjectId,
+      rating: ratings[subjectId],
+    }));
+
+    // Build the payload using the studentId from userData.username
+    const payload = {
+      studentId: userData.username, // Ensure this is the correct student ID required by your API
+      ratings: ratingsArray,
+    };
+
+    console.log("Submitting payload:", payload);
+
+    try {
+      const response = await fetch("https://academic-rating.onrender.com/api/feedback/rating", {
+        method: "POST",
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0YiIsImlhdCI6MTczOTQ1MTkwNSwiZXhwIjoxNzM5NDUyODA1fQ.1Kdha87HvPrbGIeGA7nn_x-r7E6HC26y-IHpzm897tc",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Log response status and text for debugging
+      console.log("Response status:", response.status);
+      const resultText = await response.text();
+      console.log("Response text:", resultText);
+
+      if (response.ok) {
+        Alert.alert("Success", "Ratings submitted successfully!");
+        // Optionally, reset ratings after successful submission
+        setRatings({});
+      } else {
+        // Try to parse error details if provided
+        let errorDetails;
+        try {
+          errorDetails = JSON.parse(resultText);
+        } catch (e) {
+          errorDetails = resultText;
+        }
+        Alert.alert("Error", `Failed to submit feedback. ${JSON.stringify(errorDetails)}`);
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      Alert.alert("Error", "Something went wrong. Please check your network and try again.");
+    }
   };
 
   const renderItem = ({ item, index }) => (
@@ -52,7 +110,11 @@ const MainFeedback = () => {
       <Text style={styles.subject}>{item.name}</Text>
       <Text style={styles.colon}>:</Text>
       {[4, 3, 2, 1].map((value) => (
-        <Pressable key={value} onPress={() => handleRatingChange(item.id, value)} style={styles.radioButtonContainer}>
+        <Pressable
+          key={value}
+          onPress={() => handleRatingChange(item.id, value)}
+          style={styles.radioButtonContainer}
+        >
           <View style={[styles.radioButton, ratings[item.id] === value && styles.radioSelected]} />
         </Pressable>
       ))}

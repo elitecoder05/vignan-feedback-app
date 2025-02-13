@@ -9,8 +9,8 @@ const FeedbackScreen = () => {
   const [branch, setBranch] = useState("");
   const [year, setYear] = useState("");
   const [semester, setSemester] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state for API call
-
+  const [loading, setLoading] = useState(false);  
+  
   const branchData = [
     { key: "CSE", value: "CSE" },
     { key: "ECE", value: "ECE" },
@@ -37,7 +37,8 @@ const FeedbackScreen = () => {
 
     setLoading(true);
 
-    const apiUrl = `https://feedbackk.onrender.com/api/subjects?branch=${branch}&semester=${semester}&btechYear=${year}`;
+    // Updated API endpoint and query parameters
+    const apiUrl = `https://academic-rating.onrender.com/api/subjects?branch=${branch}&semester=${semester}&year=${year}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -46,7 +47,13 @@ const FeedbackScreen = () => {
           Accept: "*/*",
           "User-Agent": "Thunder Client (https://www.thunderclient.com)",
           "Content-Type": "application/json",
+          Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0YiIsImlhdCI6MTczOTQ1MTkwNSwiZXhwIjoxNzM5NDUyODA1fQ.1Kdha87HvPrbGIeGA7nn_x-r7E6HC26y-IHpzm897tc",
         },
+        // If your backend requires the JSON payload even for GET, you can uncomment the following:
+        // body: JSON.stringify({
+        //   studentId: "67ade825591496c691722c4d",
+        //   ratings: [] // or include default ratings if needed
+        // }),
       });
 
       if (!response.ok) {
