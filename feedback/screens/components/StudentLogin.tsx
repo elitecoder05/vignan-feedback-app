@@ -44,18 +44,18 @@ const StudentLogin = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
   },
   loginBox: {
+    marginTop: 100,
     width: 320,
     backgroundColor: "#73A9E2",
     borderRadius: 8,
     overflow: "hidden",
     alignItems: "center",
-    height : 250,
+    height: 250,
   },
   title: {
     fontSize: 18,

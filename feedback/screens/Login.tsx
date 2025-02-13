@@ -1,21 +1,24 @@
-import { View, Text , StyleSheet } from 'react-native'
-import React from 'react'
+import React from "react";
+import { View, StyleSheet , Text } from "react-native";
+import HeaderCombined from "./components/HeaderCombined";
+import StudentLogin from "./components/StudentLogin"; // Importing StudentLogin component
 
 const Login = () => {
   return (
-    <View>
-      <Text style = {styles.title}>Login</Text>
+    <View style={styles.container}>
+      <HeaderCombined />
+      <StudentLogin />
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
-
-
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-      },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
-export default Login
+export default Login;
