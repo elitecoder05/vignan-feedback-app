@@ -90,6 +90,25 @@ const FeedbackScreen = () => {
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>SUBMIT</Text>
         </TouchableOpacity>
+
+
+
+        <TouchableOpacity style={styles.submitButton} onPress={ () => navigation.navigate("HeaderCombined")}>
+          <Text style={styles.submitButtonText}>test to headercombined</Text>
+        </TouchableOpacity>
+
+
+
+        <TouchableOpacity style={styles.submitButton} onPress={ () => navigation.navigate("SignInDialog")}>
+          <Text style={styles.submitButtonText}>sign component</Text>
+        </TouchableOpacity>
+
+
+
+
+
+
+
       </View>
 
       <TabMenu />

@@ -1,27 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text , StyleSheet } from 'react-native'
+import React from 'react'
 
-const AboutScreen = () => {
+import HeaderCombined from './components/HeaderCombined'
+import StudentLogin from './components/StudentLogin'
+
+const Login = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>About This App</Text>
-      <Text>This is a simple React Native app using Expo and React Navigation.</Text>
+    <View>
+      <HeaderCombined />  
+      <StudentLogin />
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
+
+
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+      },
 });
 
-export default AboutScreen;
+export default Login
