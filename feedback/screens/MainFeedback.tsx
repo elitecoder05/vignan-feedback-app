@@ -1,20 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, Pressable, Dimensions, ScrollView } from "react-native";
 import { useRoute } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
 import HeaderCombined from "./components/HeaderCombined";
 
 const MainFeedback = () => {
   const route = useRoute();
   const { subjects } = route.params || { subjects: [] }; // Get subjects from navigation params
 
-  const [userData] = useState({
-    username: "22L31A0525",
-    name: "B Srinivasa Ashrith test",
+  const [userData, setUserData] = useState({
+    username: "",
+    name: "",
     branch: "CSE",
     semester: "VI Semester",
   });
 
   const [ratings, setRatings] = useState({});
+
+  // Fetch stored user details from Secure Storage
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUsername = await SecureStore.getItemAsync("studentUsername");
+        const storedName = await SecureStore.getItemAsync("studentName");
+
+        setUserData((prev) => ({
+          ...prev,
+          username: storedUsername || "N/A",
+          name: storedName || "N/A",
+        }));
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleRatingChange = (subjectId, value) => {
     setRatings((prevRatings) => ({
