@@ -64,22 +64,18 @@ const FeedbackScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header Image */}
       <Image
         source={{ uri: "https://webprosindia.com/vignanit/collegeimages/title_head.jpg" }}
         style={styles.headerImage}
       />
 
-      {/* Welcome Header */}
       <View style={styles.welcomeHeader}>
         <Text style={styles.welcomeText}>HEY THERE!!</Text>
       </View>
 
-      {/* Feedback Title */}
       <Text style={styles.feedbackTitle}>FEEDBACK</Text>
       <View style={styles.dottedLine}></View>
 
-      {/* Dropdown Fields */}
       <View style={styles.formContainer}>
        
         <Text style={styles.label}>Select Branch :</Text>
@@ -91,13 +87,11 @@ const FeedbackScreen = () => {
         <Text style={styles.label}>Select Semester :</Text>
         <SelectList setSelected={setSemester} data={semesterData} placeholder="Select Semester" />
 
-        {/* Submit Button */}
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>SUBMIT</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Tab Menu (Reusable Component) */}
       <TabMenu />
     </View>
   );
