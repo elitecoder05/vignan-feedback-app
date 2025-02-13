@@ -9,6 +9,7 @@ import HeaderCombined from './screens/components/HeaderCombined';
 import SignInDialog from './screens/components/StudentLogin';
 
 import Login from './screens/LoginScreen';
+import MainFeedback from './screens/MainFeedback';
 
 
 
@@ -22,6 +23,11 @@ export default function App() {
       <Stack.Screen name="LoginScreen" component={Login} />
 
       <Stack.Screen name="FeedBackScreen" component={FeedbackScreen} />
+
+      <Stack.Screen name="MainFeedback" component={MainFeedback} />
+
+
+
 
 
 

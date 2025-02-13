@@ -59,7 +59,7 @@ const FeedbackScreen = () => {
     console.log("Selected Branch:", branch);
     console.log("Selected Year:", year);
     console.log("Selected Semester:", semester);
-    navigation.navigate("AboutScreen");
+    navigation.navigate("MainFeedback");
   };
 
   return (
