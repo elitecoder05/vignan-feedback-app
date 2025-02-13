@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Dimensions, ScrollView } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, Dimensions, ScrollView, TouchableOpacity } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 import HeaderCombined from "./components/HeaderCombined";
 
 const MainFeedback = () => {
   const route = useRoute();
-  const { subjects } = route.params || { subjects: [] }; // Get subjects from navigation params
+  const { subjects } = route.params || { subjects: [] };
 
   const [userData, setUserData] = useState({
     username: "",
@@ -17,7 +17,6 @@ const MainFeedback = () => {
 
   const [ratings, setRatings] = useState({});
 
-  // Fetch stored user details from Secure Storage
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -42,6 +41,10 @@ const MainFeedback = () => {
       ...prevRatings,
       [subjectId]: value,
     }));
+  };
+
+  const handleSubmit = () => {
+    console.log("Submitted Ratings:", ratings);
   };
 
   const renderItem = ({ item, index }) => (
@@ -104,6 +107,11 @@ const MainFeedback = () => {
           <Text style={styles.noSubjectsText}>No subjects available. Please try again.</Text>
         )}
       </View>
+
+      {/* Submit Button */}
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.submitButtonText}>Submit</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -132,7 +140,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "bold",
     fontSize: 16,
-    width: 130, // Ensures alignment
+    width: 130,
   },
   value: {
     fontSize: 16,
@@ -200,6 +208,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "red",
     marginTop: 20,
+  },
+  submitButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 20,
+    alignSelf: "center",
+    width: "50%",
+  },
+  submitButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 
