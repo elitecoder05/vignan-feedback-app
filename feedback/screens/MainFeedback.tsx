@@ -60,9 +60,8 @@ const MainFeedback = () => {
       rating: ratings[subjectId],
     }));
 
-    // Build the payload using the studentId from userData.username
+    // Build the payload according to the new API specification
     const payload = {
-      studentId: userData.username, // Ensure this is the correct student ID required by your API
       ratings: ratingsArray,
     };
 
@@ -72,15 +71,15 @@ const MainFeedback = () => {
       const response = await fetch("https://academic-rating.onrender.com/api/feedback/rating", {
         method: "POST",
         headers: {
-          Accept: "*/*",
+          Accept: "/",
+          "User-Agent": "Thunder Client (https://www.thunderclient.com)",
           "Content-Type": "application/json",
           Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0YiIsImlhdCI6MTczOTQ1MTkwNSwiZXhwIjoxNzM5NDUyODA1fQ.1Kdha87HvPrbGIeGA7nn_x-r7E6HC26y-IHpzm897tc",
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0ZSIsImlhdCI6MTczOTQ1OTQ4NiwiZXhwIjoxNzM5NDYwMzg2fQ.YuwKHHI6NCGgm3ekXAmIBzStrel9gPYZ7pgCl7VWZWk",
         },
         body: JSON.stringify(payload),
       });
 
-      // Log response status and text for debugging
       console.log("Response status:", response.status);
       const resultText = await response.text();
       console.log("Response text:", resultText);
@@ -90,7 +89,6 @@ const MainFeedback = () => {
         // Optionally, reset ratings after successful submission
         setRatings({});
       } else {
-        // Try to parse error details if provided
         let errorDetails;
         try {
           errorDetails = JSON.parse(resultText);
