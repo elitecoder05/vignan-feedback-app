@@ -1,16 +1,27 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  Dimensions,
+} from "react-native";
 import { SelectList } from "react-native-dropdown-select-list";
 import TabMenu from "./components/TabMenu";
 import { useNavigation } from "@react-navigation/native";
+
+const { width, height } = Dimensions.get("window");
 
 const FeedbackScreen = () => {
   const navigation = useNavigation();
   const [branch, setBranch] = useState("");
   const [year, setYear] = useState("");
   const [semester, setSemester] = useState("");
-  const [loading, setLoading] = useState(false);  
-  
+  const [loading, setLoading] = useState(false);
+
   const branchData = [
     { key: "CSE", value: "CSE" },
     { key: "ECE", value: "ECE" },
@@ -47,13 +58,9 @@ const FeedbackScreen = () => {
           Accept: "*/*",
           "User-Agent": "Thunder Client (https://www.thunderclient.com)",
           "Content-Type": "application/json",
-          Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0YiIsImlhdCI6MTczOTQ1MTkwNSwiZXhwIjoxNzM5NDUyODA1fQ.1Kdha87HvPrbGIeGA7nn_x-r7E6HC26y-IHpzm897tc",
+          Authorization:
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0YiIsImlhdCI6MTczOTQ1MTkwNSwiZXhwIjoxNzM5NDUyODA1fQ.1Kdha87HvPrbGIeGA7nn_x-r7E6HC26y-IHpzm897tc",
         },
-        // If your backend requires the JSON payload even for GET, you can uncomment the following:
-        // body: JSON.stringify({
-        //   studentId: "67ade825591496c691722c4d",
-        //   ratings: [] // or include default ratings if needed
-        // }),
       });
 
       if (!response.ok) {
@@ -83,7 +90,9 @@ const FeedbackScreen = () => {
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: "https://webprosindia.com/vignanit/collegeimages/title_head.jpg" }}
+        source={{
+          uri: "https://webprosindia.com/vignanit/collegeimages/title_head.jpg",
+        }}
         style={styles.headerImage}
       />
 
@@ -96,16 +105,36 @@ const FeedbackScreen = () => {
 
       <View style={styles.formContainer}>
         <Text style={styles.label}>Select Branch :</Text>
-        <SelectList setSelected={setBranch} data={branchData} placeholder="Select Branch" />
+        <SelectList
+          setSelected={setBranch}
+          data={branchData}
+          placeholder="Select Branch"
+        />
 
         <Text style={styles.label}>Select Year :</Text>
-        <SelectList setSelected={setYear} data={yearData} placeholder="Select Year" />
+        <SelectList
+          setSelected={setYear}
+          data={yearData}
+          placeholder="Select Year"
+        />
 
         <Text style={styles.label}>Select Semester :</Text>
-        <SelectList setSelected={setSemester} data={semesterData} placeholder="Select Semester" />
+        <SelectList
+          setSelected={setSemester}
+          data={semesterData}
+          placeholder="Select Semester"
+        />
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-          {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitButtonText}>SUBMIT</Text>}
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.submitButtonText}>SUBMIT</Text>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -121,45 +150,46 @@ const styles = StyleSheet.create({
   },
   headerImage: {
     width: "100%",
-    height: 60,
+    height: height * 0.1, // Responsive height based on device height
   },
   welcomeHeader: {
     backgroundColor: "#3885D5",
-    padding: 10,
+    padding: height * 0.015,
     borderRadius: 6,
   },
   welcomeText: {
     color: "#FFF",
     textAlign: "center",
     fontWeight: "bold",
+    fontSize: width * 0.05, // Responsive font size
   },
   feedbackTitle: {
     fontWeight: "bold",
-    padding: 10,
-    fontSize: 16,
+    padding: width * 0.03,
+    fontSize: width * 0.045, // Responsive font size
   },
   dottedLine: {
     borderStyle: "dotted",
     borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: height * 0.01,
   },
   formContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: width * 0.05,
   },
   label: {
-    fontSize: 14,
+    fontSize: width * 0.035, // Responsive font size
     fontWeight: "500",
-    marginBottom: 5,
-    marginTop: 10,
+    marginBottom: height * 0.005,
+    marginTop: height * 0.01,
   },
   submitButton: {
     backgroundColor: "#3B82F6",
-    padding: 10,
+    padding: height * 0.015,
     alignSelf: "center",
     borderRadius: 5,
-    marginTop: 20,
-    height: 40,
-    width: 100,
+    marginTop: height * 0.03,
+    height: height * 0.06,
+    width: width * 0.3,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -167,6 +197,7 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
     textAlign: "center",
+    fontSize: width * 0.04,
   },
 });
 
