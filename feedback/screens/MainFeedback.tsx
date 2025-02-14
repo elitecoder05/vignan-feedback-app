@@ -64,6 +64,7 @@ const MainFeedback = () => {
 
     // Build the payload according to the new API specification
     const payload = {
+      branch: selectedBranch || userData.branch,
       ratings: ratingsArray,
     };
 
@@ -77,7 +78,7 @@ const MainFeedback = () => {
           "User-Agent": "Thunder Client (https://www.thunderclient.com)",
           "Content-Type": "application/json",
           Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWRlODI1NTkxNDk2YzY5MTcyMmM0ZSIsImlhdCI6MTczOTQ1OTQ4NiwiZXhwIjoxNzM5NDYwMzg2fQ.YuwKHHI6NCGgm3ekXAmIBzStrel9gPYZ7pgCl7VWZWk",
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWVlNTJjYzUxYzlkNTVjODgwNTdjZiIsImlhdCI6MTczOTUxNTM3NywiZXhwIjoxNzM5NTE2Mjc3fQ.Brvrn84sHukooHV4YHP_TyPYucNvuakiuN8LGMjENxo",
         },
         body: JSON.stringify(payload),
       });
