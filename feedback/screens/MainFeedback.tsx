@@ -6,7 +6,7 @@ import {
   FlatList,
   Pressable,
   Dimensions,
-  ScrollView,                         
+  ScrollView,
   TouchableOpacity,
   Alert,
 } from "react-native";
@@ -14,13 +14,11 @@ import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 import HeaderCombined from "./components/HeaderCombined";
 
-
-
-
-
 const MainFeedback = () => {
   const route = useRoute();
-  const { subjects } = route.params || { subjects: [] };
+  const { subjects, branch: selectedBranch } = route.params || { subjects: [] };
+
+  console.log("Branch from previous screen:", selectedBranch);
 
   const [userData, setUserData] = useState({
     username: "",
@@ -139,7 +137,7 @@ const MainFeedback = () => {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Branch</Text>
-          <Text style={styles.value}>: {userData.branch}</Text>
+          <Text style={styles.value}>: {selectedBranch || userData.branch}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Semester</Text>

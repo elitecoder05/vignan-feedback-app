@@ -23,9 +23,11 @@ const FeedbackScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const branchData = [
-    { key: "CSE", value: "CSE" },
     { key: "ECE", value: "ECE" },
-    { key: "EEE", value: "EEE" },
+    { key: "CSE1", value: "CSE1" },
+    { key: "CSE2", value: "CSE2" },
+    { key: "CSE3", value: "CSE3" },
+    { key: "CSE4", value: "CSE4" },
   ];
 
   const yearData = [
@@ -76,9 +78,10 @@ const FeedbackScreen = () => {
       }));
 
       console.log("Subjects:", subjects);
+      console.log("Selected branch:", branch);
 
-      // Navigate to MainFeedback and pass subject data
-      navigation.navigate("MainFeedback", { subjects });
+      // Navigate to MainFeedback and pass subject data along with branch
+      navigation.navigate("MainFeedback", { subjects, branch });
     } catch (error) {
       console.error("Error fetching subjects:", error);
       Alert.alert("Error", "Failed to fetch subjects. Please try again.");
@@ -104,18 +107,18 @@ const FeedbackScreen = () => {
       <View style={styles.dottedLine}></View>
 
       <View style={styles.formContainer}>
-        <Text style={styles.label}>Select Branch :</Text>
-        <SelectList
-          setSelected={setBranch}
-          data={branchData}
-          placeholder="Select Branch"
-        />
-
         <Text style={styles.label}>Select Year :</Text>
         <SelectList
           setSelected={setYear}
           data={yearData}
           placeholder="Select Year"
+        />
+
+        <Text style={styles.label}>Select Branch :</Text>
+        <SelectList
+          setSelected={setBranch}
+          data={branchData}
+          placeholder="Select Branch"
         />
 
         <Text style={styles.label}>Select Semester :</Text>
