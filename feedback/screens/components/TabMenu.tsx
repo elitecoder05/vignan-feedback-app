@@ -5,8 +5,7 @@ const TabMenu = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Your content goes here */}
-      </ScrollView>
+       </ScrollView>
 
       <View style={styles.tabMenu}>
         <TouchableOpacity style={styles.feedbackButton}>
