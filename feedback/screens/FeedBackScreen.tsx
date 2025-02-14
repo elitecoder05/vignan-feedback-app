@@ -23,7 +23,7 @@ const FeedbackScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const branchData = [
-    { key: "ECE", value: "ECE" },
+    { key: "CSE", value: "CSE" },
     { key: "CSE1", value: "CSE1" },
     { key: "CSE2", value: "CSE2" },
     { key: "CSE3", value: "CSE3" },
