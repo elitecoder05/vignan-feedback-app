@@ -9,6 +9,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
@@ -28,6 +29,7 @@ const MainFeedback = () => {
   });
 
   const [ratings, setRatings] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -56,6 +58,9 @@ const MainFeedback = () => {
   };
 
   const handleSubmit = async () => {
+    // Set the loading state to true
+    setIsSubmitting(true);
+
     // Convert the ratings object to an array of rating objects
     const ratingsArray = Object.keys(ratings).map((subjectId) => ({
       subjectId,
@@ -103,6 +108,9 @@ const MainFeedback = () => {
     } catch (error) {
       console.error("Error submitting feedback:", error);
       Alert.alert("Error", "Something went wrong. Please check your network and try again.");
+    } finally {
+      // Set loading state back to false
+      setIsSubmitting(false);
     }
   };
 
@@ -172,8 +180,16 @@ const MainFeedback = () => {
       </View>
 
       {/* Submit Button */}
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, isSubmitting && { opacity: 0.7 }]}
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.submitButtonText}>Submit</Text>
+        )}
       </TouchableOpacity>
     </ScrollView>
   );
