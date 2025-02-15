@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  TextInput, // Import TextInput
+  TextInput, 
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
@@ -30,9 +30,8 @@ const MainFeedback = () => {
   });
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedRating, setSelectedRating] = useState(null);
-  const [feedbackText, setFeedbackText] = useState(""); // New state for feedback text
+  const [feedbackText, setFeedbackText] = useState("");  
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // This state now reflects whether the current subject has already received feedback.
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
@@ -54,7 +53,6 @@ const MainFeedback = () => {
     fetchUserData();
   }, []);
 
-  // Whenever the selected subject changes, check if feedback has already been submitted for it.
   useEffect(() => {
     const checkSubmissionForSubject = async () => {
       if (!selectedSubject) {
