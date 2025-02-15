@@ -14,6 +14,7 @@ import {
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 import HeaderCombined from "./components/HeaderCombined";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const MainFeedback = () => {
   const route = useRoute();
@@ -29,7 +30,8 @@ const MainFeedback = () => {
   });
 
   const [ratings, setRatings] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -48,6 +50,24 @@ const MainFeedback = () => {
     };
 
     fetchUserData();
+
+    // Check if feedback was submitted within the last 48 hours
+    const checkFeedbackSubmission = async () => {
+      try {
+        const submittedTimestamp = await SecureStore.getItemAsync("feedbackSubmittedAt");
+        if (submittedTimestamp) {
+          const submittedTime = parseInt(submittedTimestamp, 10);
+          const now = Date.now();
+          if (now - submittedTime < 48 * 60 * 60 * 1000) {
+            setHasSubmitted(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking submission timestamp:", error);
+      }
+    };
+
+    checkFeedbackSubmission();
   }, []);
 
   const handleRatingChange = (subjectId, value) => {
@@ -67,7 +87,7 @@ const MainFeedback = () => {
       rating: ratings[subjectId],
     }));
 
-    // Build the payload according to the new API specification
+    // Build the payload according to the API specification
     const payload = {
       branch: selectedBranch || userData.branch,
       ratings: ratingsArray,
@@ -94,6 +114,9 @@ const MainFeedback = () => {
 
       if (response.ok) {
         Alert.alert("Success", "Ratings submitted successfully!");
+        // Save the submission timestamp
+        await SecureStore.setItemAsync("feedbackSubmittedAt", Date.now().toString());
+        setHasSubmitted(true);
         // Optionally, reset ratings after successful submission
         setRatings({});
       } else {
@@ -114,6 +137,15 @@ const MainFeedback = () => {
     }
   };
 
+  // This function checks if feedback has already been submitted before proceeding.
+  const handleSubmitPress = () => {
+    if (hasSubmitted) {
+      Alert.alert("Error", "You have already submitted the feedback.");
+      return;
+    }
+    handleSubmit();
+  };
+
   const renderItem = ({ item, index }) => (
     <View style={[styles.row, index % 2 !== 0 && styles.alternateRow]}>
       <Text style={styles.subject}>{item.name}</Text>
@@ -131,6 +163,7 @@ const MainFeedback = () => {
   );
 
   return (
+    <SafeAreaView>
     <ScrollView style={styles.container}>
       <HeaderCombined />
 
@@ -182,16 +215,19 @@ const MainFeedback = () => {
       {/* Submit Button */}
       <TouchableOpacity
         style={[styles.submitButton, isSubmitting && { opacity: 0.7 }]}
-        onPress={handleSubmit}
+        onPress={handleSubmitPress}
         disabled={isSubmitting}
       >
         {isSubmitting ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.submitButtonText}>Submit</Text>
+          <Text style={styles.submitButtonText}>
+            {hasSubmitted ? "Feedback Submitted" : "Submit"}
+          </Text>
         )}
       </TouchableOpacity>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
