@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  TextInput, 
+  TextInput,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
@@ -30,7 +30,7 @@ const MainFeedback = () => {
   });
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedRating, setSelectedRating] = useState(null);
-  const [feedbackText, setFeedbackText] = useState("");  
+  const [feedbackText, setFeedbackText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
@@ -94,11 +94,16 @@ const MainFeedback = () => {
 
     setIsSubmitting(true);
 
+    // Construct payload based on the latest API structure
     const payload = {
       branch: selectedBranch || userData.branch,
-      subjectId: selectedSubject,
-      rating: selectedRating,
-      feedback: feedbackText, // Include feedback text in the payload
+      ratings: [
+        {
+          subjectId: selectedSubject,
+          rating: selectedRating,
+          message: feedbackText, // Renamed key from "feedback" to "message"
+        },
+      ],
     };
 
     // Debugging: log the payload being sent to the API
