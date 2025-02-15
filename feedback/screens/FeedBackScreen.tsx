@@ -12,6 +12,7 @@ import {
 import { SelectList } from "react-native-dropdown-select-list";
 import TabMenu from "./components/TabMenu";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 
@@ -23,7 +24,7 @@ const FeedbackScreen = () => {
   const [loading, setLoading] = useState(false);
 
   const branchData = [
-    { key: "CSE", value: "CSE" },
+    // { key: "CSE", value: "CSE" },
     { key: "CSE1", value: "CSE1" },
     { key: "CSE2", value: "CSE2" },
     { key: "CSE3", value: "CSE3" },
@@ -91,7 +92,7 @@ const FeedbackScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Image
         source={{
           uri: "https://webprosindia.com/vignanit/collegeimages/title_head.jpg",
@@ -142,7 +143,7 @@ const FeedbackScreen = () => {
       </View>
 
       <TabMenu />
-    </View>
+    </SafeAreaView>
   );
 };
 

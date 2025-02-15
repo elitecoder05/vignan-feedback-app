@@ -3,13 +3,14 @@ import React from 'react'
 
 import HeaderCombined from './components/HeaderCombined'
 import StudentLogin from './components/StudentLogin'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Login = () => {
   return (
-    <View>
+    <SafeAreaView>
       <HeaderCombined />  
       <StudentLogin />
-    </View>
+    </SafeAreaView>
   )
 }
 

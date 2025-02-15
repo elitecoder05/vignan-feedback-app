@@ -3,16 +3,18 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   Pressable,
-  Dimensions,
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
+  TextInput, 
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 import HeaderCombined from "./components/HeaderCombined";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { SelectList } from "react-native-dropdown-select-list";
 
 const MainFeedback = () => {
   const route = useRoute();
@@ -26,8 +28,11 @@ const MainFeedback = () => {
     branch: "CSE",
     semester: "VI Semester",
   });
-
-  const [ratings, setRatings] = useState({});
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedRating, setSelectedRating] = useState(null);
+  const [feedbackText, setFeedbackText] = useState("");  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -48,27 +53,56 @@ const MainFeedback = () => {
     fetchUserData();
   }, []);
 
-  const handleRatingChange = (subjectId, value) => {
-    setRatings((prevRatings) => ({
-      ...prevRatings,
-      [subjectId]: value,
-    }));
+  useEffect(() => {
+    const checkSubmissionForSubject = async () => {
+      if (!selectedSubject) {
+        setHasSubmitted(false);
+        return;
+      }
+      try {
+        const alreadySubmitted = await SecureStore.getItemAsync(
+          `feedbackSubmitted_${selectedSubject}`
+        );
+        setHasSubmitted(!!alreadySubmitted);
+      } catch (error) {
+        console.error("Error checking submission for subject:", error);
+      }
+    };
+
+    checkSubmissionForSubject();
+  }, [selectedSubject]);
+
+  const handleRatingChange = (value) => {
+    setSelectedRating(value);
   };
 
   const handleSubmit = async () => {
-    // Convert the ratings object to an array of rating objects
-    const ratingsArray = Object.keys(ratings).map((subjectId) => ({
-      subjectId,
-      rating: ratings[subjectId],
-    }));
+    if (!selectedSubject) {
+      Alert.alert("Error", "Please select a subject.");
+      return;
+    }
+    if (!selectedRating) {
+      Alert.alert("Error", "Please select a rating.");
+      return;
+    }
 
-    // Build the payload according to the new API specification
+    // Extra precaution: if this subject's feedback has been submitted, stop here.
+    if (hasSubmitted) {
+      Alert.alert("Error", "Feedback for this subject has already been submitted.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     const payload = {
       branch: selectedBranch || userData.branch,
-      ratings: ratingsArray,
+      subjectId: selectedSubject,
+      rating: selectedRating,
+      feedback: feedbackText, // Include feedback text in the payload
     };
 
-    console.log("Submitting payload:", payload);
+    // Debugging: log the payload being sent to the API
+    console.log("Sending payload to API:", JSON.stringify(payload, null, 2));
 
     try {
       const response = await fetch("https://academic-rating.onrender.com/api/feedback/rating", {
@@ -88,9 +122,13 @@ const MainFeedback = () => {
       console.log("Response text:", resultText);
 
       if (response.ok) {
-        Alert.alert("Success", "Ratings submitted successfully!");
-        // Optionally, reset ratings after successful submission
-        setRatings({});
+        Alert.alert("Success", "Rating submitted successfully!");
+        // Save the submission timestamp for this subject.
+        await SecureStore.setItemAsync(`feedbackSubmitted_${selectedSubject}`, Date.now().toString());
+        setHasSubmitted(true);
+        // Optionally reset the rating and feedback text (keeping the subject selected so the user sees it was submitted)
+        setSelectedRating(null);
+        setFeedbackText("");
       } else {
         let errorDetails;
         try {
@@ -103,93 +141,127 @@ const MainFeedback = () => {
     } catch (error) {
       console.error("Error submitting feedback:", error);
       Alert.alert("Error", "Something went wrong. Please check your network and try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const renderItem = ({ item, index }) => (
-    <View style={[styles.row, index % 2 !== 0 && styles.alternateRow]}>
-      <Text style={styles.subject}>{item.name}</Text>
-      <Text style={styles.colon}>:</Text>
-      {[4, 3, 2, 1].map((value) => (
-        <Pressable
-          key={value}
-          onPress={() => handleRatingChange(item.id, value)}
-          style={styles.radioButtonContainer}
-        >
-          <View style={[styles.radioButton, ratings[item.id] === value && styles.radioSelected]} />
-        </Pressable>
-      ))}
-    </View>
-  );
+  const handleSubmitPress = () => {
+    // Instead of a global check, we now rely on per-subject check (hasSubmitted is updated in the useEffect above)
+    handleSubmit();
+  };
+
+  // Convert your subjects array to the key/value format needed for SelectList.
+  const subjectOptions = subjects.map((subject) => ({
+    key: subject.id,
+    value: subject.name,
+  }));
 
   return (
-    <ScrollView style={styles.container}>
-      <HeaderCombined />
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView style={styles.container}>
+        <HeaderCombined />
 
-      {/* Student Information */}
-      <View style={styles.infoContainer}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Roll No</Text>
-          <Text style={styles.value}>: {userData.username}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Student Name</Text>
-          <Text style={styles.value}>: {userData.name}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Branch</Text>
-          <Text style={styles.value}>: {selectedBranch || userData.branch}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Semester</Text>
-          <Text style={styles.value}>: {userData.semester}</Text>
-        </View>
-      </View>
-
-      {/* Rating Legend */}
-      <View style={styles.ratingContainer}>
-        <Text style={styles.ratingText}>Excellent - 4</Text>
-        <Text style={styles.ratingText}>Good - 3</Text>
-        <Text style={styles.ratingText}>Average - 2</Text>
-        <Text style={styles.ratingText}>Poor - 1</Text>
-      </View>
-
-      {/* Subjects Feedback Table */}
-      <View style={styles.subjectsContainer}>
-        <View style={styles.headerRow}>
-          <Text style={styles.headerText}>Subjects</Text>
-          <Text style={styles.headerText}>4</Text>
-          <Text style={styles.headerText}>3</Text>
-          <Text style={styles.headerText}>2</Text>
-          <Text style={styles.headerText}>1</Text>
+        {/* Student Information */}
+        <View style={styles.infoContainer}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Roll No</Text>
+            <Text style={styles.infoValue}>: {userData.username}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Student Name</Text>
+            <Text style={styles.infoValue}>: {userData.name}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Branch</Text>
+            <Text style={styles.infoValue}>: {selectedBranch || userData.branch}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Semester</Text>
+            <Text style={styles.infoValue}>: {userData.semester}</Text>
+          </View>
         </View>
 
-        {subjects.length > 0 ? (
-          <FlatList data={subjects} keyExtractor={(item) => item.id} renderItem={renderItem} />
-        ) : (
-          <Text style={styles.noSubjectsText}>No subjects available. Please try again.</Text>
-        )}
-      </View>
+        {/* Subject Dropdown */}
+        <View style={styles.dropdownContainer}>
+          <Text style={styles.dropdownLabel}>Select Subject:</Text>
+          <SelectList
+            setSelected={setSelectedSubject}
+            data={subjectOptions}
+            placeholder="Select Subject"
+            boxStyles={styles.dropdownBox}
+            inputStyles={styles.dropdownInput}
+            dropdownStyles={styles.dropdown}
+          />
+        </View>
 
-      {/* Submit Button */}
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Rating Options */}
+        <View style={styles.ratingContainer}>
+          <Text style={styles.ratingQuestion}>Please provide feedback for the subject:</Text>
+          <View style={styles.radioGroup}>
+            {[4, 3, 2, 1].map((value) => (
+              <Pressable
+                key={value}
+                onPress={() => handleRatingChange(value)}
+                style={styles.radioButtonContainer}
+                disabled={hasSubmitted} // Optionally disable if already submitted.
+              >
+                <View style={[styles.radioButton, selectedRating === value && styles.radioSelected]} />
+                <Text style={styles.radioLabel}>{value}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* Feedback Textbox */}
+        <View style={styles.feedbackContainer}>
+          <Text style={styles.feedbackLabel}>Your Feedback:</Text>
+          <TextInput
+            style={styles.feedbackInput}
+            multiline
+            numberOfLines={4}
+            placeholder="Enter your feedback here..."
+            value={feedbackText}
+            onChangeText={setFeedbackText}
+            editable={!hasSubmitted} // Optionally disable editing if already submitted.
+          />
+        </View>
+
+        {/* Submit Button */}
+        <TouchableOpacity
+          style={[styles.submitButton, isSubmitting && { opacity: 0.7 }]}
+          onPress={handleSubmitPress}
+          disabled={isSubmitting || hasSubmitted} // Disable if already submitted.
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitButtonText}>
+              {hasSubmitted ? "Feedback Submitted" : "Submit"}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+  },
   container: {
     padding: 20,
+    backgroundColor: "#fff",
   },
   infoContainer: {
     backgroundColor: "#f8f9fa",
     padding: 15,
     borderRadius: 10,
     elevation: 3,
+    marginBottom: 20,
   },
-  row: {
+  infoRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
@@ -197,80 +269,85 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
-  alternateRow: {
-    backgroundColor: "#f2f2f2",
-  },
-  label: {
+  infoLabel: {
     fontWeight: "bold",
     fontSize: 16,
     width: 130,
   },
-  value: {
+  infoValue: {
     fontSize: 16,
+  },
+  dropdownContainer: {
+    marginBottom: 20,
+  },
+  dropdownLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  dropdownBox: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+  },
+  dropdownInput: {
+    fontSize: 16,
+    color: "#000",
+  },
+  dropdown: {
+    marginTop: 5,
   },
   ratingContainer: {
-    marginTop: 15,
-    backgroundColor: "#e6f2f7",
-    padding: 10,
+    marginBottom: 20,
+  },
+  ratingQuestion: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  radioGroup: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: Dimensions.get("window").width - 40,
-    alignSelf: "center",
-    borderRadius: 5,
-  },
-  ratingText: {
-    fontSize: 13,
-    fontWeight: "bold",
-  },
-  subjectsContainer: {
-    marginTop: 20,
-  },
-  headerRow: {
-    flexDirection: "row",
-    backgroundColor: "#777",
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  headerText: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#fff",
-    flex: 1,
-    textAlign: "center",
-  },
-  subject: {
-    fontSize: 16,
-    fontWeight: "bold",
-    flex: 2,
-  },
-  colon: {
-    fontSize: 16,
-    marginHorizontal: 5,
   },
   radioButtonContainer: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: "#555",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 5,
   },
   radioSelected: {
     backgroundColor: "#007AFF",
     borderColor: "#007AFF",
   },
-  noSubjectsText: {
-    textAlign: "center",
+  radioLabel: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  feedbackContainer: {
+    marginBottom: 20,
+  },
+  feedbackLabel: {
     fontSize: 16,
-    color: "red",
-    marginTop: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  feedbackInput: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    textAlignVertical: "top",
+    fontSize: 16,
+    height: 100,
   },
   submitButton: {
     backgroundColor: "#007AFF",
