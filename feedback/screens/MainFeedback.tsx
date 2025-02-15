@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  TextInput, // Import TextInput
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
@@ -29,6 +30,7 @@ const MainFeedback = () => {
   });
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedRating, setSelectedRating] = useState(null);
+  const [feedbackText, setFeedbackText] = useState(""); // New state for feedback text
   const [isSubmitting, setIsSubmitting] = useState(false);
   // This state now reflects whether the current subject has already received feedback.
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -98,6 +100,7 @@ const MainFeedback = () => {
       branch: selectedBranch || userData.branch,
       subjectId: selectedSubject,
       rating: selectedRating,
+      feedback: feedbackText, // Include feedback text in the payload
     };
 
     // Debugging: log the payload being sent to the API
@@ -125,8 +128,9 @@ const MainFeedback = () => {
         // Save the submission timestamp for this subject.
         await SecureStore.setItemAsync(`feedbackSubmitted_${selectedSubject}`, Date.now().toString());
         setHasSubmitted(true);
-        // Optionally reset the rating (keeping the subject selected so the user sees it was submitted)
+        // Optionally reset the rating and feedback text (keeping the subject selected so the user sees it was submitted)
         setSelectedRating(null);
+        setFeedbackText("");
       } else {
         let errorDetails;
         try {
@@ -209,6 +213,20 @@ const MainFeedback = () => {
               </Pressable>
             ))}
           </View>
+        </View>
+
+        {/* Feedback Textbox */}
+        <View style={styles.feedbackContainer}>
+          <Text style={styles.feedbackLabel}>Your Feedback:</Text>
+          <TextInput
+            style={styles.feedbackInput}
+            multiline
+            numberOfLines={4}
+            placeholder="Enter your feedback here..."
+            value={feedbackText}
+            onChangeText={setFeedbackText}
+            editable={!hasSubmitted} // Optionally disable editing if already submitted.
+          />
         </View>
 
         {/* Submit Button */}
@@ -315,6 +333,23 @@ const styles = StyleSheet.create({
   radioLabel: {
     fontSize: 14,
     fontWeight: "bold",
+  },
+  feedbackContainer: {
+    marginBottom: 20,
+  },
+  feedbackLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  feedbackInput: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    textAlignVertical: "top",
+    fontSize: 16,
+    height: 100,
   },
   submitButton: {
     backgroundColor: "#007AFF",
